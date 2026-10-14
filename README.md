@@ -26,6 +26,22 @@ Dark themes:
   **Monochrome** (plus **Amber**, **Chroma**, **Green**), **Naysayer**,
   **Nightfly**, **Rose Pine**, **Tokyo Night**, **Vague**, **VSCode Red**
 
+## Screenshots
+
+A curated selection (Gruvbox, Tokyo Night, Black Metal Gorgoroth, Miniwinter,
+Naysayer, Monochrome):
+
+![Theme overview](screenshots/overview.png)
+
+All 32 themes:
+
+[![All themes](screenshots/all.jpg)](screenshots/all.jpg)
+
+Every shot is a real Kakoune frame (buffer, line-number gutter, a selection and
+the status line) captured through Kakoune's JSON UI — see
+[`make screenshots`](#development). Full-resolution PNGs live in
+[`screenshots/`](screenshots/).
+
 ## Install
 
 Copy or symlink the `colors/` directory into your Kakoune config:
@@ -59,13 +75,16 @@ The themes are generated from the source palettes in [`palettes/`](palettes/)
 (fresh-editor JSON, Neovim mini.hues Lua, and VS Code color-theme JSON).
 
 ```sh
-make generate   # regenerate colors/*.kak
-make validate   # source every theme with kak to catch syntax errors
-make list       # list available themes
+make generate      # regenerate colors/*.kak
+make validate      # source every theme with kak to catch syntax errors
+make screenshots   # render screenshots/*.png and the montages
+make list          # list available themes
 ```
 
 `make generate` requires Python 3 (standard library only). `make validate`
-requires a `kak` binary (override with `KAK=/path/to/kak`).
+requires a `kak` binary (override with `KAK=/path/to/kak`). `make screenshots`
+additionally requires Python's Pillow and a monospace font (JetBrains Mono by
+default); it drives `kak -ui json` and rasterizes the resolved faces.
 
 ## Adding a theme
 

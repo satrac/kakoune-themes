@@ -4,13 +4,14 @@ SHELL := /usr/bin/env bash
 KAK ?= kak
 THEMES := $(notdir $(basename $(wildcard colors/*.kak)))
 
-.PHONY: help all generate validate install clean list
+.PHONY: help all generate validate screenshots install clean list
 
 help:
 	@echo "justaperlhacker/kakoune-themes"
 	@echo
 	@echo "  make generate           Regenerate colors/*.kak from palettes/"
 	@echo "  make validate           Source every theme with kak (syntax check)"
+	@echo "  make screenshots        Render screenshots/ from real kak frames"
 	@echo "  make install            Install colors into \$$XDG_CONFIG_HOME/kak/colors"
 	@echo "  make list               List available themes"
 	@echo "  make clean              Remove generated themes"
@@ -21,6 +22,9 @@ all: generate
 
 generate:
 	python3 scripts/gen_themes.py
+
+screenshots: colors
+	python3 scripts/shoot.py --montage
 
 validate: colors
 	@fail=0; for f in colors/*.kak; do \
