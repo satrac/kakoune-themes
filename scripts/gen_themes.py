@@ -5,6 +5,7 @@ Source of truth:
   palettes/fresh/*.json     fresh-editor palettes (primary source)
   palettes/mini/*.lua       Neovim mini.hues "four seasons" palettes
   palettes/vscode/*.json    VS Code color-theme JSON (extra variants)
+  palettes/10x/*.10x_settings  10x Editor color schemes
 
 Output:
   colors/<name>.kak
@@ -18,6 +19,8 @@ import json
 import os
 import re
 from string import Template
+
+import tenx
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 FRESH = os.path.join(ROOT, "palettes", "fresh")
@@ -599,7 +602,7 @@ def face_value(v, spec, kw_bold=False, kw_italic=False):
     return ",".join(colors)
 
 
-def render(name, v, kw_bold, kw_italic, note):
+def render(name, v, kw_bold, kw_italic, note, comment_attr="i"):
     if kw_bold:
         kw_attr = "b"
     else:
@@ -621,6 +624,8 @@ def render(name, v, kw_bold, kw_italic, note):
         for face, key, attr in entries:
             if face == "keyword" and kw_attr:
                 attr = kw_attr + attr
+            if face == "comment":
+                attr = comment_attr
             val = face_value(v, key)
             if attr:
                 val += "+" + attr
@@ -646,12 +651,14 @@ NAYSAYER_NOTE = ("Ported from p0209p/naysayer.vim (Neovim) and the "
                  "justaperlhacker VS Code \"naysayer\" theme.")
 VSC_NOTE = ("Ported from the justaperlhacker VS Code color theme "
             "(palettes/vscode/{name}-color-theme.json).")
+TENX_NOTE = ("Ported from the 10x Editor color scheme "
+             "(palettes/10x/{name}.10x_settings).")
 
 
-def write_theme(name, v, kw_bold, kw_italic, note):
+def write_theme(name, v, kw_bold, kw_italic, note, comment_attr="i"):
     dest = os.path.join(OUT, f"{name}.kak")
     with open(dest, "w") as fh:
-        fh.write(render(name, v, kw_bold, kw_italic, note))
+        fh.write(render(name, v, kw_bold, kw_italic, note, comment_attr))
     print("wrote", os.path.relpath(dest, ROOT))
     return name
 
@@ -688,6 +695,18 @@ def main():
     for name in VSC_THEMES:
         if os.path.exists(os.path.join(VSC, name + "-color-theme.json")):
             add(name, palette_from_vscode(name))
+
+    # 5) 10x Editor color schemes
+    for name, path, data in tenx.all_palettes():
+        v, meta = tenx.normalize(name, data)
+        theme_name = "10x-" + meta["slug"]
+        if theme_name in produced:
+            continue
+        produced[theme_name] = True
+        names.append(write_theme(
+            theme_name, v, meta["kw_bold"], meta["kw_italic"],
+            TENX_NOTE.format(name=name),
+            "" if not meta["comment_italic"] else "i"))
 
     print("total:", len(names))
 
